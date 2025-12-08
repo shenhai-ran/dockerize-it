@@ -1,0 +1,5 @@
+{
+  "name": "Dockerize It",
+  "description": "AI-powered Docker configuration generator for GitHub repositories, specializing in Deep Learning and complex dependency stacks.",
+  "requestFramePermissions": []
+}
