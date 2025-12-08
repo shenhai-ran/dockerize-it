@@ -12,7 +12,6 @@ interface Props {
 
 const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => {
     const [provider, setProvider] = useState<LLMProvider>(config.provider || 'google');
-    const [apiKey, setApiKey] = useState(config.apiKey);
     const [model, setModel] = useState(config.modelName);
     const [baseUrl, setBaseUrl] = useState(config.baseUrl || '');
     
@@ -23,7 +22,6 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
     useEffect(() => {
         if (isOpen) {
             setProvider(config.provider || 'google');
-            setApiKey(config.apiKey);
             setModel(config.modelName);
             setBaseUrl(config.baseUrl || '');
             setTestStatus('idle');
@@ -31,14 +29,11 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
     }, [isOpen, config]);
 
     // Set default model when provider changes if current model is likely invalid for new provider
-    // This provides a good default but doesn't lock the user in
     useEffect(() => {
         if (!isOpen) return; // Don't reset if not interacting
         
         const options = MODEL_OPTIONS[provider];
         if (options && options.length > 0) {
-            // If the current model string is empty or looks like it belongs to another provider (simple heuristic or just always reset on provider switch)
-            // We'll simply reset to the first recommended option to be helpful
             setModel(options[0].value);
         } else {
             // For custom providers with no presets
@@ -60,7 +55,7 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
         
         const tempConfig: AppConfig = {
             provider,
-            apiKey,
+            apiKey: '', // Ignored for Google
             modelName: model,
             baseUrl: baseUrl || undefined
         };
@@ -73,23 +68,11 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
     const handleSave = () => {
         onSave({ 
             provider,
-            apiKey, 
+            apiKey: '', // We don't save API keys from UI
             modelName: model,
             baseUrl: baseUrl || undefined
         });
         onClose();
-    };
-
-    const handleClear = () => {
-        if (confirm("Are you sure you want to remove your API key and settings from this browser?")) {
-            onSave({
-                provider: 'google',
-                apiKey: '',
-                modelName: 'gemini-3-pro-preview',
-                baseUrl: ''
-            });
-            onClose();
-        }
     };
 
     return (
@@ -120,26 +103,8 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
                         </select>
                     </div>
 
-                    {/* API Key */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">API Key</label>
-                        <input 
-                            type="password" 
-                            value={apiKey}
-                            onChange={(e) => setApiKey(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all"
-                            placeholder={provider === 'google' ? "AIza..." : "sk-..."}
-                        />
-                         <div className="flex items-start gap-2 mt-2 bg-slate-800/50 p-2 rounded border border-slate-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-slate-400 mt-0.5 shrink-0">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                            </svg>
-                            <p className="text-xs text-slate-400">
-                                Stored locally in your browser. Never sent to our servers.
-                            </p>
-                        </div>
-                    </div>
-
+                    {/* API Key Input Removed */}
+                    
                     {/* Base URL (Conditional) */}
                     {(provider === 'openai' || provider === 'custom') && (
                         <div>
@@ -194,7 +159,7 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
                     <div className="flex items-center justify-between pt-2">
                         <button 
                             onClick={handleTest}
-                            disabled={!apiKey || isTesting}
+                            disabled={isTesting}
                             className={`text-xs px-3 py-2 rounded border transition-colors flex items-center gap-2 ${
                                 testStatus === 'success' ? 'border-green-500 text-green-500 bg-green-500/10' :
                                 testStatus === 'error' ? 'border-red-500 text-red-500 bg-red-500/10' :
@@ -203,13 +168,6 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
                         >
                             {isTesting && <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></div>}
                             {isTesting ? 'Testing...' : testStatus === 'success' ? 'Connection Verified' : testStatus === 'error' ? 'Connection Failed' : 'Test Connection'}
-                        </button>
-                        
-                        <button 
-                            onClick={handleClear}
-                            className="text-xs text-red-400 hover:text-red-300 hover:underline"
-                        >
-                            Remove Saved Data
                         </button>
                     </div>
                 </div>

@@ -55,7 +55,8 @@ const callOpenAICompatible = async (
 export const testApiKey = async (config: AppConfig): Promise<boolean> => {
     try {
         if (config.provider === 'google') {
-            const ai = new GoogleGenAI({ apiKey: config.apiKey });
+            // Use process.env.API_KEY exclusively for Google GenAI
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             await ai.models.generateContent({
                 model: config.modelName,
                 contents: "Test connection",
@@ -100,7 +101,7 @@ export const analyzeRepoAndGenerate = async (
 
     // --- Google Strategy ---
     if (config.provider === 'google') {
-        const ai = new GoogleGenAI({ apiKey: config.apiKey });
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
             model: config.modelName,
             contents: prompt,
@@ -173,7 +174,7 @@ export const sendChatMessage = async (
 
     // --- Google Strategy ---
     if (config.provider === 'google') {
-        const ai = new GoogleGenAI({ apiKey: config.apiKey });
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const chat = ai.chats.create({
             model: config.modelName,
             config: {

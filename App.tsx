@@ -18,43 +18,26 @@ const App: React.FC = () => {
             console.error("Failed to parse config from local storage", e);
         }
 
-        // 2. Try to load from Environment Variables
-        // Safe check for process.env to prevent runtime errors in environments where it's undefined
-        const env = (typeof process !== 'undefined' && process.env) ? process.env : {};
-        
-        const envGeminiKey = env.REACT_APP_GEMINI_API_KEY;
-        const envOpenAIKey = env.REACT_APP_OPENAI_API_KEY;
-        const envDefaultProvider = env.REACT_APP_DEFAULT_PROVIDER as LLMProvider;
+        // 2. Try to load from Environment Variables (Vite Standard)
+        // Guard against undefined import.meta.env
+        const envDefaultProvider = import.meta.env?.VITE_DEFAULT_PROVIDER as LLMProvider;
 
         // 3. Determine defaults
-        // Logic: Use saved provider if exists. 
-        // If not, check env default provider.
-        // If not, default to OpenAI if that env key exists, else Google.
         let defaultProvider: LLMProvider = savedConfig?.provider || 'google';
         
         if (!savedConfig?.provider) {
             if (envDefaultProvider && ['google', 'openai', 'custom'].includes(envDefaultProvider)) {
                 defaultProvider = envDefaultProvider;
-            } else if (envOpenAIKey && !envGeminiKey) {
-                defaultProvider = 'openai';
             }
         }
         
-        // Logic: Use saved API key if it exists (non-empty). 
-        // If saved key is missing/empty, try to fallback to the ENV key corresponding to the chosen provider.
-        let apiKey = savedConfig?.apiKey || '';
-        if (!apiKey) {
-            if (defaultProvider === 'google' && envGeminiKey) apiKey = envGeminiKey;
-            if (defaultProvider === 'openai' && envOpenAIKey) apiKey = envOpenAIKey;
-        }
-
         // Logic: Determine model name
         const defaultModel = defaultProvider === 'google' ? 'gemini-3-pro-preview' : 'gpt-4o';
         const modelName = savedConfig?.modelName || defaultModel;
 
         return { 
             provider: defaultProvider, 
-            apiKey: apiKey, 
+            apiKey: '', // Managed by environment
             modelName: modelName,
             baseUrl: savedConfig?.baseUrl || ''
         };
@@ -73,10 +56,7 @@ const App: React.FC = () => {
         e.preventDefault();
         setUrlError('');
         
-        if (!config.apiKey) {
-            setIsSettingsOpen(true);
-            return;
-        }
+        // API Key check removed as it is handled via environment variable
 
         const info = parseRepoUrl(repoUrl);
         if (!info) {
