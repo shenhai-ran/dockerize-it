@@ -18,28 +18,42 @@ const App: React.FC = () => {
             console.error("Failed to parse config from local storage", e);
         }
 
-        // 2. Try to load from Environment Variables (Vite Standard)
-        // Guard against undefined import.meta.env
+        // 2. Load Environment Variables
         const envDefaultProvider = import.meta.env?.VITE_DEFAULT_PROVIDER as LLMProvider;
+        const envOpenAIKey = import.meta.env?.VITE_OPENAI_API_KEY;
+        const envBaseUrl = import.meta.env?.VITE_BASE_URL;
+        const envModelName = import.meta.env?.VITE_MODEL_NAME;
 
-        // 3. Determine defaults
-        let defaultProvider: LLMProvider = savedConfig?.provider || 'google';
-        
-        if (!savedConfig?.provider) {
-            if (envDefaultProvider && ['google', 'openai', 'custom'].includes(envDefaultProvider)) {
-                defaultProvider = envDefaultProvider;
-            }
+        // 3. Determine Provider
+        // Priority: Saved > Env > Default ('google')
+        let provider: LLMProvider = savedConfig?.provider || (
+             (envDefaultProvider && ['google', 'openai', 'custom'].includes(envDefaultProvider)) 
+             ? envDefaultProvider 
+             : 'google'
+        );
+
+        // 4. Determine API Key
+        // For Google: Service handles process.env.API_KEY fallback, so we can leave it empty here if not saved.
+        // For OpenAI: We must explicitly load it into config if it's in the env vars.
+        let apiKey = savedConfig?.apiKey || '';
+        if (!apiKey && provider === 'openai' && envOpenAIKey) {
+            apiKey = envOpenAIKey;
         }
-        
-        // Logic: Determine model name
-        const defaultModel = defaultProvider === 'google' ? 'gemini-3-pro-preview' : 'gpt-4o';
-        const modelName = savedConfig?.modelName || defaultModel;
+
+        // 5. Determine Model Name
+        let modelName = savedConfig?.modelName || envModelName;
+        if (!modelName) {
+            modelName = provider === 'google' ? 'gemini-3-pro-preview' : 'gpt-4o';
+        }
+
+        // 6. Determine Base URL
+        let baseUrl = savedConfig?.baseUrl || envBaseUrl || '';
 
         return { 
-            provider: defaultProvider, 
-            apiKey: savedConfig?.apiKey || '', // Load user saved key if exists
-            modelName: modelName,
-            baseUrl: savedConfig?.baseUrl || ''
+            provider, 
+            apiKey, 
+            modelName,
+            baseUrl
         };
     });
 
