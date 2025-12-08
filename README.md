@@ -39,24 +39,23 @@
 
 4.  Start the development server:
     ```bash
-    npm start
+    npm run dev
     ```
 
-## Usage
+## Deployment on Vercel
 
-1.  Open the application in your browser.
-2.  Click the **Configuration** button (top right) to enter your API Key (Google Gemini or OpenAI).
-3.  Paste a GitHub repository URL (e.g., `https://github.com/fundamentalvision/BEVFormer`).
-4.  Click **Analyze**.
-5.  Review the generated `Dockerfile` and `docker-compose.yml`.
-6.  Use the **Deployment Instructions** section to run the application.
-7.  Use the **Chat** feature to ask questions like "How do I mount a local volume for my dataset?"
+1.  Push this code to a GitHub repository.
+2.  Import the project into Vercel.
+3.  Vercel should automatically detect the **Vite** framework preset.
+4.  Add your Environment Variables in the Vercel project settings if needed (`REACT_APP_DEFAULT_PROVIDER`, etc.).
+5.  Deploy!
 
 ## Tech Stack
 
 - **Frontend**: React, TypeScript, Tailwind CSS
+- **Build Tool**: Vite
 - **AI Integration**: Google GenAI SDK, OpenAI Compatible Fetch
-- **Utilities**: `marked` (Markdown), `lucide-react` (Icons)
+- **Utilities**: `marked` (Markdown)
 
 ## License
 
