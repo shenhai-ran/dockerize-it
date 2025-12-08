@@ -10,10 +10,6 @@ const callOpenAICompatible = async (
 ) => {
     let baseUrl = config.baseUrl || 'https://api.openai.com/v1';
     if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-    // If user provided a base URL like "https://api.openai.com", append "/v1" if missing, 
-    // unless it's a known custom endpoint that might not use /v1 (but standard is /v1)
-    // For safety, assume user provides the root that contains /chat/completions or we append /chat/completions to what they gave.
-    // Standard convention: Base URL is `https://api.domain.com/v1`
     
     const url = `${baseUrl}/chat/completions`;
 
@@ -55,8 +51,8 @@ const callOpenAICompatible = async (
 export const testApiKey = async (config: AppConfig): Promise<boolean> => {
     try {
         if (config.provider === 'google') {
-            // Use process.env.API_KEY exclusively for Google GenAI
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const apiKey = config.apiKey || process.env.API_KEY;
+            const ai = new GoogleGenAI({ apiKey });
             await ai.models.generateContent({
                 model: config.modelName,
                 contents: "Test connection",
@@ -101,7 +97,8 @@ export const analyzeRepoAndGenerate = async (
 
     // --- Google Strategy ---
     if (config.provider === 'google') {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const apiKey = config.apiKey || process.env.API_KEY;
+        const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
             model: config.modelName,
             contents: prompt,
@@ -136,7 +133,7 @@ export const analyzeRepoAndGenerate = async (
         
         const content = await callOpenAICompatible(config, messages, true);
         
-        // Clean markdown code blocks if present (common in generic LLMs even with json mode)
+        // Clean markdown code blocks if present
         let jsonStr = content.trim();
         if (jsonStr.startsWith('```json')) {
             jsonStr = jsonStr.replace(/^```json/, '').replace(/```$/, '');
@@ -174,7 +171,8 @@ export const sendChatMessage = async (
 
     // --- Google Strategy ---
     if (config.provider === 'google') {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const apiKey = config.apiKey || process.env.API_KEY;
+        const ai = new GoogleGenAI({ apiKey });
         const chat = ai.chats.create({
             model: config.modelName,
             config: {

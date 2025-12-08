@@ -37,7 +37,7 @@ const App: React.FC = () => {
 
         return { 
             provider: defaultProvider, 
-            apiKey: '', // Managed by environment
+            apiKey: savedConfig?.apiKey || '', // Load user saved key if exists
             modelName: modelName,
             baseUrl: savedConfig?.baseUrl || ''
         };
@@ -56,8 +56,6 @@ const App: React.FC = () => {
         e.preventDefault();
         setUrlError('');
         
-        // API Key check removed as it is handled via environment variable
-
         const info = parseRepoUrl(repoUrl);
         if (!info) {
             setUrlError('Invalid GitHub URL. Format: https://github.com/owner/repo');

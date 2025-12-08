@@ -12,6 +12,7 @@ interface Props {
 
 const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => {
     const [provider, setProvider] = useState<LLMProvider>(config.provider || 'google');
+    const [apiKey, setApiKey] = useState(config.apiKey || '');
     const [model, setModel] = useState(config.modelName);
     const [baseUrl, setBaseUrl] = useState(config.baseUrl || '');
     
@@ -22,6 +23,7 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
     useEffect(() => {
         if (isOpen) {
             setProvider(config.provider || 'google');
+            setApiKey(config.apiKey || '');
             setModel(config.modelName);
             setBaseUrl(config.baseUrl || '');
             setTestStatus('idle');
@@ -55,7 +57,7 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
         
         const tempConfig: AppConfig = {
             provider,
-            apiKey: '', // Ignored for Google
+            apiKey: apiKey,
             modelName: model,
             baseUrl: baseUrl || undefined
         };
@@ -68,11 +70,23 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
     const handleSave = () => {
         onSave({ 
             provider,
-            apiKey: '', // We don't save API keys from UI
+            apiKey: apiKey, 
             modelName: model,
             baseUrl: baseUrl || undefined
         });
         onClose();
+    };
+
+    const handleClearData = () => {
+        if (confirm("Are you sure? This will remove your API keys and settings from this browser.")) {
+            localStorage.removeItem('dockerize_config');
+            setApiKey('');
+            alert("Data cleared.");
+            // We don't close immediately so they can enter new data if they want, 
+            // or they can cancel. But usually clearing means a reset.
+            // Let's reload the page to be clean or just clear the inputs.
+            window.location.reload(); 
+        }
     };
 
     return (
@@ -103,7 +117,32 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
                         </select>
                     </div>
 
-                    {/* API Key Input Removed */}
+                    {/* API Key Input */}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            API Key
+                            <span className="ml-2 text-xs text-slate-500 font-normal">
+                                (Stored in browser local storage)
+                            </span>
+                        </label>
+                        <div className="relative">
+                            <input 
+                                type="password" 
+                                value={apiKey}
+                                onChange={(e) => setApiKey(e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all pr-16"
+                                placeholder={provider === 'google' ? "AIza..." : "sk-..."}
+                            />
+                            {apiKey && (
+                                <button 
+                                    onClick={() => setApiKey('')}
+                                    className="absolute right-2 top-2.5 text-xs text-slate-500 hover:text-red-400"
+                                >
+                                    Clear
+                                </button>
+                            )}
+                        </div>
+                    </div>
                     
                     {/* Base URL (Conditional) */}
                     {(provider === 'openai' || provider === 'custom') && (
@@ -157,6 +196,13 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
                     </div>
 
                     <div className="flex items-center justify-between pt-2">
+                         <button 
+                            onClick={handleClearData}
+                            className="text-xs text-red-500/70 hover:text-red-500 underline"
+                        >
+                            Remove Saved Data
+                        </button>
+
                         <button 
                             onClick={handleTest}
                             disabled={isTesting}
