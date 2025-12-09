@@ -16,6 +16,7 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
     const [model, setModel] = useState(config.modelName);
     const [baseUrl, setBaseUrl] = useState(config.baseUrl || '');
     
+    const [showApiKey, setShowApiKey] = useState(false);
     const [isTesting, setIsTesting] = useState(false);
     const [testStatus, setTestStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
@@ -27,6 +28,7 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
             setModel(config.modelName);
             setBaseUrl(config.baseUrl || '');
             setTestStatus('idle');
+            setShowApiKey(false);
         }
     }, [isOpen, config]);
 
@@ -127,20 +129,40 @@ const SettingsModal: React.FC<Props> = ({ isOpen, onClose, config, onSave }) => 
                         </label>
                         <div className="relative">
                             <input 
-                                type="password" 
+                                type={showApiKey ? "text" : "password"}
                                 value={apiKey}
                                 onChange={(e) => setApiKey(e.target.value)}
-                                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all pr-16"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all pr-24"
                                 placeholder={provider === 'google' ? "AIza..." : "sk-..."}
                             />
-                            {apiKey && (
-                                <button 
-                                    onClick={() => setApiKey('')}
-                                    className="absolute right-2 top-2.5 text-xs text-slate-500 hover:text-red-400"
+                            <div className="absolute right-2 top-0 bottom-0 flex items-center gap-2">
+                                <button
+                                    onClick={() => setShowApiKey(!showApiKey)}
+                                    className="text-slate-500 hover:text-cyan-400 transition-colors p-1"
+                                    title={showApiKey ? "Hide API Key" : "Show API Key"}
+                                    tabIndex={-1}
                                 >
-                                    Clear
+                                    {showApiKey ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                                            <path fillRule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745A10.02 10.02 0 0020 10c0-5.523-4.477-10-10-10-1.928 0-3.684.545-5.166 1.492L3.28 2.22zm-1.5 5.515A8.483 8.483 0 001.066 10c1.237 3.328 4.414 6 8.934 6 .812 0 1.58-.09 2.308-.247l-1.9-1.9a6.52 6.52 0 01-1.408.147c-3.213 0-5.592-1.968-6.702-4.265zM10 5a5 5 0 015 5c0 .356-.036.703-.102 1.036l1.636 1.636a8.503 8.503 0 001.398-3.085C16.892 6.51 13.916 3.5 10 3.5c-1.272 0-2.457.316-3.52.882l1.624 1.624C8.614 5.293 9.283 5 10 5z" clipRule="evenodd" />
+                                        </svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                                            <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                                            <path fillRule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                        </svg>
+                                    )}
                                 </button>
-                            )}
+                                {apiKey && (
+                                    <button 
+                                        onClick={() => setApiKey('')}
+                                        className="text-xs text-slate-500 hover:text-red-400"
+                                        title="Clear API Key"
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
                     

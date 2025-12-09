@@ -51,6 +51,7 @@ const callOpenAICompatible = async (
 export const testApiKey = async (config: AppConfig): Promise<boolean> => {
     try {
         if (config.provider === 'google') {
+            // Prioritize config.apiKey if available (user settings), fallback to env var
             const apiKey = config.apiKey || process.env.API_KEY;
             const ai = new GoogleGenAI({ apiKey });
             await ai.models.generateContent({
@@ -97,6 +98,7 @@ export const analyzeRepoAndGenerate = async (
 
     // --- Google Strategy ---
     if (config.provider === 'google') {
+        // Prioritize config.apiKey if available (user settings), fallback to env var
         const apiKey = config.apiKey || process.env.API_KEY;
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
@@ -171,6 +173,7 @@ export const sendChatMessage = async (
 
     // --- Google Strategy ---
     if (config.provider === 'google') {
+        // Prioritize config.apiKey if available (user settings), fallback to env var
         const apiKey = config.apiKey || process.env.API_KEY;
         const ai = new GoogleGenAI({ apiKey });
         const chat = ai.chats.create({
