@@ -1,5 +1,7 @@
 # Dockerize It - AI DevOps Assistant
 
+> ⚡ **This project was built primarily using Vibe Coding with Gemini 3.0 Pro.**
+
 **Dockerize It** is a powerful web application that analyzes GitHub repositories to automatically generate production-ready `Dockerfile` and `docker-compose.yml` configurations. It specializes in detecting complex dependencies, particularly for Deep Learning projects (PyTorch, CUDA, etc.).
 
 ## Features
@@ -56,6 +58,7 @@
 - **Build Tool**: Vite
 - **AI Integration**: Google GenAI SDK, OpenAI Compatible Fetch
 - **Utilities**: `marked` (Markdown)
+- **Development**: Vibe Coding with Gemini 3.0 Pro
 
 ## License
 
