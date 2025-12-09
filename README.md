@@ -60,6 +60,38 @@
 - **Utilities**: `marked` (Markdown)
 - **Development**: Vibe Coding with Gemini 3.0 Pro
 
+## Known Issues
+
+Google AI Studio environment restrictions prevented the automatic creation/modification of the `.env.example` file. For local development, please create/update the `.env.example` file manually with the following content:
+
+```bash
+# Google Gemini API Key
+# Required if using Google provider (default).
+# Get it from https://aistudio.google.com/
+VITE_GEMINI_API_KEY=
+
+# OpenAI API Key
+# Required if using OpenAI provider.
+# Get it from https://platform.openai.com/
+VITE_OPENAI_API_KEY=
+
+# Default Provider
+# Options: google | openai | custom
+# Default: google
+VITE_DEFAULT_PROVIDER=google
+
+# Model Name
+# Overrides the default model selection.
+# Google Examples: gemini-3-pro-preview, gemini-2.5-flash
+# OpenAI Examples: gpt-4o, gpt-4-turbo
+VITE_MODEL_NAME=
+
+# Base URL
+# Optional. Useful for custom OpenAI-compatible endpoints (e.g., LocalAI, Ollama)
+# Example: http://localhost:11434/v1
+VITE_BASE_URL=
+```
+
 ## License
 
 MIT
